@@ -52,7 +52,7 @@ if __name__ == '__main__':
         with tf.variable_scope("model", reuse=None):
             sampling_model = model_class(config)
 
-        saver = tf.train.Saver(tf.all_variables())
+        saver = tf.train.Saver(tf.global_variables())
         model_path = os.path.join(os.path.dirname(args.config_file), 
             config.model_name)
         saver.restore(session, model_path)

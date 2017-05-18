@@ -7,9 +7,9 @@ import logging
 import random
 import string
 import pprint
- 
+
 import numpy as np
-import tensorflow as tf    
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 import midi_util
@@ -20,7 +20,7 @@ from rnn import get_config_name, DefaultConfig
 from model import Model, NottinghamSeparate
 
 if __name__ == '__main__':
-    np.random.seed()      
+    np.random.seed()
 
     parser = argparse.ArgumentParser(description='Music RNN')
     parser.add_argument('--choice', type=str, default='melody',
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         raise Exception("Run name {} already exists, choose a different one", format(run_folder))
     os.makedirs(run_folder)
 
-    logger = logging.getLogger(__name__) 
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler())
     logger.addHandler(logging.FileHandler(os.path.join(run_folder, "training.log")))
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
         logger.info(config)
         config_file_path = os.path.join(run_folder, get_config_name(config) + '.config')
-        with open(config_file_path, 'w') as f: 
+        with open(config_file_path, 'w') as f:
             cPickle.dump(config, f)
 
         with tf.Graph().as_default(), tf.Session() as session:
@@ -122,8 +122,8 @@ if __name__ == '__main__':
             with tf.variable_scope("model", reuse=True):
                 valid_model = model_class(config, training=False)
 
-            saver = tf.train.Saver(tf.all_variables())
-            tf.initialize_all_variables().run()
+            saver = tf.train.Saver(tf.global_variables())
+            tf.global_variables_initializer().run()
 
             # training
             early_stop_best_loss = None
@@ -153,7 +153,7 @@ if __name__ == '__main__':
                         saver.save(session, os.path.join(run_folder, config.model_name))
                         saved_flag = True
                 elif not start_saving:
-                    start_saving = True 
+                    start_saving = True
                     logger.info('Valid loss increased for the first time, will start saving models')
                     saver.save(session, os.path.join(run_folder, config.model_name))
                     saved_flag = True

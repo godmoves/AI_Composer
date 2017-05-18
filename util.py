@@ -5,13 +5,13 @@ from collections import defaultdict
 from random import shuffle
 
 import numpy as np
-import tensorflow as tf    
+import tensorflow as tf
 
 import midi_util
 import nottingham_util
 
 def parse_midi_directory(input_dir, time_step):
-    """ 
+    """
     input_dir: data directory full of midi files
     time_step: the number of ticks to use as a time step for discretization
 
@@ -19,7 +19,7 @@ def parse_midi_directory(input_dir, time_step):
     and D is the range of notes.
     """
     files = [ os.path.join(input_dir, f) for f in os.listdir(input_dir)
-              if os.path.isfile(os.path.join(input_dir, f)) ] 
+              if os.path.isfile(os.path.join(input_dir, f)) ]
     sequences = [ \
         (f, midi_util.parse_midi_to_sequence(f, time_step=time_step)) \
         for f in files ]
@@ -30,8 +30,8 @@ def batch_data(sequences, time_batch_len=128, max_time_batches=10,
                softmax=False, verbose=False):
     """
     sequences: a list of [T x D] matrices, each matrix representing a sequencey
-    time_batch_len: the unrolling length that will be used by BPTT. 
-    max_time_batches: the max amount of time batches to consider. Any sequences 
+    time_batch_len: the unrolling length that will be used by BPTT.
+    max_time_batches: the max amount of time batches to consider. Any sequences
                       longert than max_time_batches * time_batch_len will be ignored
                       Can be set to -1 to all time batches needed.
     softmax: Flag should be set to true if using the dual-softmax formualtion
@@ -57,7 +57,7 @@ def batch_data(sequences, time_batch_len=128, max_time_batches=10,
     batches = defaultdict(list)
     for sequence in sequences:
         # -1 because we can't predict the first step
-        num_time_steps = ((sequence.shape[0]-1) // time_batch_len) 
+        num_time_steps = ((sequence.shape[0]-1) // time_batch_len)
         if num_time_steps < 1:
             continue
         if max_time_batches > 0 and num_time_steps > max_time_batches:
@@ -105,7 +105,7 @@ def batch_data(sequences, time_batch_len=128, max_time_batches=10,
         return (tb_data, tb_targets)
 
     return [ arrange_batch(b, n) for n, b in batches.iteritems() ]
-        
+
 def load_data(data_dir, time_step, time_batch_len, max_time_batches, nottingham=None):
     """
     nottingham: The sequences object as created in prepare_nottingham_pickle
@@ -115,7 +115,7 @@ def load_data(data_dir, time_step, time_batch_len, max_time_batches, nottingham=
                is provided)
     time_batch_len and max_time_batches: see batch_data()
 
-    returns { 
+    returns {
         "train": {
             "data": [ batch_data() ],
             "metadata: { ... }
@@ -187,7 +187,7 @@ def run_epoch(session, model, batches, training=False, testing=False):
         # save state over unrolling time steps
         batch_size = data[0].shape[1]
         num_time_steps = len(data)
-        state = model.get_cell_zero_state(session, batch_size) 
+        state = model.get_cell_zero_state(session, batch_size)
         probs = list()
 
         for tb_data, tb_targets in zip(data, targets):
@@ -202,7 +202,8 @@ def run_epoch(session, model, batches, training=False, testing=False):
                 tbd[:, np.arange(batches), :] = tb_data[:, permutations, :]
                 tbt = np.zeros_like(tb_targets)
                 tbt[:, np.arange(batches), :] = tb_targets[:, permutations, :]
-                state[np.arange(batches)] = state[permutations]
+                permutations = np.array(permutations, dtype=int)
+                state[np.arange(batches, dtype=int)] = state[permutations]
 
             feed_dict = {
                 model.initial_state: state,
@@ -234,7 +235,7 @@ def accuracy(batch_probs, data, num_samples=20):
     http://ismir2009.ismir.net/proceedings/PS2-21.pdf
     """
 
-    false_positives, false_negatives, true_positives = 0, 0, 0 
+    false_positives, false_negatives, true_positives = 0, 0, 0
     for _, batch_targets in data:
         num_time_steps = len(batch_data)
         for ts_targets, ts_probs in zip(batch_targets, batch_probs[num_time_steps]):
@@ -250,8 +251,8 @@ def accuracy(batch_probs, data, num_samples=20):
                         else:
                             false_negatives += (num_samples - num_occurrences)
                             true_positives += num_occurrences
-                
-    accuracy = (float(true_positives) / float(true_positives + false_positives + false_negatives)) 
+
+    accuracy = (float(true_positives) / float(true_positives + false_positives + false_negatives))
 
     print "Precision: {}".format(float(true_positives) / (float(true_positives + false_positives)))
     print "Recall: {}".format(float(true_positives) / (float(true_positives + false_negatives)))
