@@ -53,7 +53,8 @@ class Model(object):
             else:
                 raise Exception("Invalid cell type: {}".format(cell_type))
 
-            cell = cell_class(hidden_size, input_size = input_size, reuse=tf.get_variable_scope().reuse)
+            #cell = cell_class(hidden_size, input_size = input_size, reuse=tf.get_variable_scope().reuse)
+            cell = cell_class(hidden_size, reuse=tf.get_variable_scope().reuse)
             if training:
                 return rnn.DropoutWrapper(cell, output_keep_prob = dropout_prob)
             else:
@@ -98,10 +99,10 @@ class Model(object):
         return tf.sigmoid(logits)
 
     def get_cell_zero_state(self, session, batch_size):
-        g_zero_state = session.run(self.cell.zero_state(batch_size, tf.float32))
+        zero_state = self.cell.zero_state(batch_size, tf.float32)
+        g_zero_state = session.run(zero_state)
         #return self.cell.zero_state(batch_size, tf.float32).eval(session=session)
-        #return g_zero_state
-        return self.cell.zero_state(batch_size, tf.float32)
+        return g_zero_state
 
 class NottinghamModel(Model):
     """

@@ -203,7 +203,8 @@ def run_epoch(session, model, batches, training=False, testing=False):
                 tbt = np.zeros_like(tb_targets)
                 tbt[:, np.arange(batches), :] = tb_targets[:, permutations, :]
                 permutations = np.array(permutations, dtype=int)
-                state[np.arange(batches, dtype=int)] = state[permutations]
+                # as the new feature in numpy, add [0][0] to avoid error
+                state[0][0][np.arange(batches, dtype=int)] = state[0][0][permutations]
 
             feed_dict = {
                 model.initial_state: state,
