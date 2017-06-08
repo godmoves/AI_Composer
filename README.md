@@ -7,7 +7,7 @@ Dependencies
 
 * Numpy (http://www.numpy.org/)
 * Tensorflow (https://github.com/tensorflow/tensorflow)
-* Python Midi (https://github.com/vishnubob/python-midi.git)
+* Python-Midi (https://github.com/vishnubob/python-midi.git)
 * Mingus (https://github.com/bspaans/python-mingus)
 
 Use [pip](https://pypi.python.org/pypi/pip) to install any missing dependencies
@@ -15,55 +15,29 @@ Use [pip](https://pypi.python.org/pypi/pip) to install any missing dependencies
 Installation (Tested on Ubuntu 16.04)
 ============
 
-* Step 1: Tensorflow version 0.8.0 must be used. On [Tensorflow's download page here](https://www.tensorflow.org/versions/r0.10/get_started/os_setup.html), scroll down to "Pip Installation". Follow the first step normally.
+* Step 1: Tensorflow version 1.1.0 must be used. On [Tensorflow's download page here](https://www.tensorflow.org/versions/r0.10/get_started/os_setup.html).
 
-You will see "export TF_BINARY_URL" followed by a URL. Modify the part of the url that has "tensorflow-0.10.0", so that it will download version 0.8.0, not version 0.10.0 "tensorflow-0.8.0. 
+* Step 2: After installing Tensorflow, you will have to install the missing dependencies(choose what you need to install):
 
-Example of the modified url, for the Python 2.7 CPU version of Tensorflow:
+  `sudo pip install matplotlib`
 
-```
-export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.8.0-cp27-none-linux_x86_64.whl
+  `sudo apt-get install python-tk `
 
-sudo pip install --upgrade $TF_BINARY_URL
-```
-Follow the third step normally to install Tensorflow.
+  `sudo pip install numpy`
 
-* Step 2: After installing Tensorflow, you will have to install the missing dependencies:
+  `sudo pip install pyhton-midi`
 
-`pip install matplotlib`
-
-`sudo apt-get install python-tk `
-
-`pip install numpy`
-
-* Step 3:
-
-```
-cd ~
-git clone https://github.com/vishnubob/python-midi
-cd python-midi
-python setup.py install
-```
-
-
-
-
-```
-cd ~
-git clone https://github.com/bspaans/python-mingus
-cd python-mingus
-python setup.py install
-```
+  `sudo pip install mingus`
 
 
 Basic Usage
 ===========
 
 1. `mkdir data && mkdir models`
-2. run 'python main.py'. This will collect the data, create the chord mapping file in data/nottingham.pickle, and train the model
-3. Run `python rnn_sample.py --config_file new_config_file.config` to generate a new MIDI song.
+2. run `python main.py`. This will collect the data, create the chord mapping file in data/nottingham.pickle, and train the model
+3. Run `python rnn_sample.py --config_file <path/to/new_config_file.config>` to generate a new MIDI song.
 
-Give it 1-2 hours to train on your local machine, then generate the new song. You don't have to wait for it to finish, just wait until you see the 'saving model' message in terminal. In a future video, I'll talk about how to easily setup cloud GPU training. Likely using www.fomoro.com
+Give it 1-2 hours to train on your local machine (it seems 100 epoches is good enough), then generate the new song. You don't have to wait for it to finish, just wait until you see the `saving model` message in terminal. You can convert the midi file into mp3 using the online converter [here](http://www.conversion-tool.com/midi)
 
 Credits
 ===========
